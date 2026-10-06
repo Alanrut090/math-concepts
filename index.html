@@ -3,202 +3,36 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Subtraction: Regrouping</title>
+<title>Maths Concepts</title>
 <style>
-  :root { --bg:#fdf8ee; --ink:#2b2d42; --th:#7b2cbf; --hund:#4361ee; --ten:#2a9d8f; --one:#f4a261; --new:#e76f51; --ok:#2a9d8f; }
+  :root { --bg:#fdf8ee; --ink:#2b2d42; --accent:#4361ee; }
   * { box-sizing: border-box; }
-  body { margin:0; font-family: "Trebuchet MS", system-ui, sans-serif; background:var(--bg); color:var(--ink); }
-  main { max-width: 900px; margin: 0 auto; padding: 16px; }
-  h1 { font-size: 1.5rem; margin: 4px 0 12px; }
-  .entry { display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-bottom:14px; }
-  .entry input { font: inherit; font-size:1.6rem; width: 11em; max-width:100%; padding:8px 12px; border-radius:12px; border:3px solid var(--ink); }
-  .hint { font-size:.9rem; color:#666; }
-  .msg { background:#fff; border:3px solid var(--ink); border-radius:16px; padding:14px 16px; font-size:1.2rem; min-height:92px; margin-bottom:14px; }
-  .msg .step { font-size:.85rem; color:#888; display:block; margin-bottom:4px; }
-  .sum { display:grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap:8px; background:#fff; border-radius:16px; padding:10px; border:3px solid #ddd; }
-  .col { border-radius:12px; padding:6px; border:3px solid transparent; min-width:0; }
-  .col.active { border-color: var(--ink); background:#fff9e0; }
-  .col.donor { border-color: var(--new); border-style:dashed; }
-  .col h2 { margin:0 0 4px; text-align:center; font-size:.9rem; }
-  .digits { font-size:2.4rem; text-align:center; line-height:1.15; font-weight:bold; }
-  .digits .top { position:relative; height:3rem; }
-  .digits .top .old { text-decoration: line-through; color:#999; font-size:1.4rem; position:absolute; left:50%; transform:translateX(-190%); top:0.5rem; }
-  .digits .top .cur.changed { color: var(--new); }
-  .digits .bot { border-bottom:4px solid var(--ink); }
-  .digits .sign { font-size:1.1rem; color:#666; }
-  .digits .ans { height:3rem; color: var(--ok); }
-  .blocks { display:flex; flex-wrap:wrap; gap:4px; justify-content:center; min-height:100px; align-content:flex-start; margin-top:8px; }
-  .b { border-radius:4px; transition: all .4s; }
-  .b.k { width:30px; height:30px; background:var(--th); }
-  .b.h { width:24px; height:24px; background:var(--hund); }
-  .b.t { width:10px; height:34px; background:var(--ten); }
-  .b.o { width:12px; height:12px; background:var(--one); border-radius:50%; }
-  .b.new { background:var(--new); animation: pop .7s; }
-  .b.gone { opacity:.15; transform: scale(.6) rotate(20deg); }
-  @keyframes pop { 0%{ transform:scale(.2);} 70%{ transform:scale(1.5);} 100%{ transform:scale(1);} }
-  .controls { display:flex; flex-wrap:wrap; gap:10px; margin:14px 0; align-items:center; }
-  button { font: inherit; font-size:1.1rem; padding:10px 16px; border-radius:14px; border:3px solid var(--ink); background:#fff; cursor:pointer; }
-  button.go { background:var(--ok); color:#fff; }
-  button:disabled { opacity:.35; cursor:default; }
-  select { font: inherit; padding:8px; border-radius:10px; border:2px solid #999; }
-  .legend { font-size:.95rem; color:#555; margin-top:6px; display:flex; flex-wrap:wrap; gap:14px; align-items:center; }
-  .legend i { display:inline-block; vertical-align:middle; margin-right:4px; }
+  body { margin:0; font-family:"Trebuchet MS", system-ui, sans-serif; background:var(--bg); color:var(--ink); }
+  main { max-width:860px; margin:0 auto; padding:24px 16px; }
+  h1 { margin:0 0 6px; font-size:2rem; }
+  p.sub { margin:0 0 24px; color:#555; font-size:1.1rem; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:16px; }
+  a.card { display:block; background:#fff; border:3px solid var(--ink); border-radius:18px; padding:18px; color:inherit; text-decoration:none; transition:transform .15s; }
+  a.card:hover, a.card:focus-visible { transform:translateY(-4px); border-color:var(--accent); }
+  .card .icon { font-size:2.4rem; }
+  .card h2 { margin:8px 0 4px; font-size:1.25rem; }
+  .card p { margin:0; color:#555; }
+  .card .tag { display:inline-block; margin-top:10px; font-size:.8rem; background:#eef1ff; color:var(--accent); padding:2px 10px; border-radius:99px; }
 </style>
 </head>
 <body>
 <main>
-  <h1>Subtraction: regrouping (also called borrowing)</h1>
-
-  <form class="entry" id="form">
-    <input id="eq" value="4203 - 1768" aria-label="Subtraction, for example 4203 - 1768" autocomplete="off" inputmode="text">
-    <button class="go" type="submit">Show me!</button>
-    <span class="hint">Type any subtraction up to 4 digits, e.g. 5003 - 2467</span>
-  </form>
-
-  <div class="msg" id="msg"></div>
-  <div class="sum" id="sum"></div>
-
-  <div class="controls">
-    <button id="back">◀ Back</button>
-    <button id="play" class="go">⏸ Pause</button>
-    <button id="fwd">Next ▶</button>
-    <button id="restart">↺ Restart</button>
-    <label>Speed
-      <select id="speed">
-        <option value="4200">Slow</option>
-        <option value="2800" selected>Normal</option>
-        <option value="1500">Fast</option>
-      </select>
-    </label>
-  </div>
-
-  <div class="legend">
-    <span><i class="b k"></i>1000</span>
-    <span><i class="b h"></i>100</span>
-    <span><i class="b t"></i>10</span>
-    <span><i class="b o"></i>1</span>
-    <span><i class="b o new" style="animation:none"></i>just regrouped</span>
-    <span><i class="b o gone"></i>taken away</span>
+  <h1>Maths Concepts</h1>
+  <p class="sub">Interactive animations to help understand how maths works.</p>
+  <div class="grid">
+    <!-- Add new concepts by copying a card below -->
+    <a class="card" href="subtraction-regrouping/">
+      <div class="icon">➖</div>
+      <h2>Subtraction: regrouping</h2>
+      <p>See why we swap 1 ten for 10 ones (also called borrowing). Up to 4 digits.</p>
+      <span class="tag">Subtraction</span>
+    </a>
   </div>
 </main>
-
-<script>
-const NAMES = ["Ones", "Tens", "Hundreds", "Thousands"];   // index = place from the right
-const UNIT  = ["one", "ten", "hundred", "thousand"];
-const CLS   = ["o", "t", "h", "k"];
-const $ = id => document.getElementById(id);
-
-let steps = [], idx = 0, n = 0, A = [], B = [], timer = null, playing = true;
-
-function digitsOf(num, len) {
-  return String(num).padStart(len, "0").split("").map(Number);
-}
-
-// Work the whole sum out up front as a list of snapshots, so we can play, pause, step and go back.
-function build(a, b) {
-  n = String(a).length;
-  A = digitsOf(a, n); B = digitsOf(b, n);
-  const top = A.slice(), crossed = Array(n).fill(0), ans = Array(n).fill(null);
-  let fresh = Array(n).fill(0);
-  steps = [];
-  const nm = c => NAMES[n-1-c].toLowerCase();
-  const un = c => UNIT[n-1-c];
-  const push = (msg, col, donor = -1) => steps.push({
-    msg, col, donor, top: top.slice(), crossed: crossed.slice(), ans: ans.slice(), fresh: fresh.slice()
-  });
-
-  push(`We want to work out <b>${a} − ${b}</b>. The blocks show the top number, ${a}. We take away one column at a time, starting on the right with the ${nm(n-1)}.`, n-1);
-
-  for (let c = n-1; c >= 0; c--) {
-    if (c < n-1) push(`The ${nm(c+1)} column is done. Now the <b>${nm(c)}</b> column.`, c);
-    let first = true;
-    while (top[c] < B[c]) {
-      if (first) {
-        push(`In the ${nm(c)} column we have ${top[c]} but need to take away ${B[c]}. We can't, there aren't enough! So we <b>regroup</b>: swap something bigger for smaller pieces. Nothing is lost, it's the same amount.`, c);
-        first = false;
-      }
-      let k = c - 1;
-      while (k >= 0 && top[k] === 0) k--;
-      const skipped = k < c - 1;
-      top[k] -= 1; top[k+1] += 10;
-      fresh = Array(n).fill(0); fresh[k+1] = 10;
-      const swap = `Take 1 ${un(k)} from the ${nm(k)} column (it goes down to ${top[k]}) and swap it for 10 ${un(k+1)}s.`;
-      if (k + 1 === c) {
-        push(`${swap} Now the ${nm(c)} column has <b>${top[c]}</b>${top[c] >= B[c] ? `, enough to take away ${B[c]}!` : `, still not enough, so we regroup again.`}`, c, k);
-      } else {
-        push(`The ${nm(c-1)} column has nothing to give, so we look further left. ${swap} The ${nm(k+1)} column now has <b>${top[k+1]}</b> to pass along.`, c, k);
-      }
-      fresh = Array(n).fill(0);
-    }
-    crossed[c] = B[c];
-    ans[c] = top[c] - B[c];
-    push(`Now take away: <b>${top[c]} − ${B[c]} = ${ans[c]}</b>. Write ${ans[c]} under the ${nm(c)} column.`, c);
-  }
-  const result = parseInt(ans.join(""), 10);
-  push(`All done! <b>${a} − ${b} = ${result}</b> 🎉<br>Check it by adding back: ${result} + ${b} = ${a}.`, -1);
-}
-
-function render() {
-  const s = steps[idx];
-  $("msg").innerHTML = `<span class="step">Step ${idx+1} of ${steps.length}</span>${s.msg}`;
-  const sum = $("sum"); sum.innerHTML = "";
-  for (let c = 0; c < n; c++) {
-    const p = n-1-c;
-    const d = document.createElement("div");
-    d.className = "col" + (c === s.col ? " active" : "") + (c === s.donor ? " donor" : "");
-    const changed = s.top[c] !== A[c];
-    let blocks = "";
-    for (let i = 0; i < s.top[c]; i++) {
-      const isNew = i >= s.top[c] - s.fresh[c];
-      blocks += `<div class="b ${CLS[p]}${isNew ? " new" : ""}${i < s.crossed[c] ? " gone" : ""}"></div>`;
-    }
-    d.innerHTML = `<h2>${NAMES[p]}</h2>
-      <div class="digits">
-        <div class="top">${changed ? `<span class="old">${A[c]}</span>` : ""}<span class="cur${changed ? " changed" : ""}">${s.top[c]}</span></div>
-        <div class="bot"><span class="sign">−&nbsp;</span>${B[c]}</div>
-        <div class="ans">${s.ans[c] === null ? "" : s.ans[c]}</div>
-      </div>
-      <div class="blocks">${blocks}</div>`;
-    sum.appendChild(d);
-  }
-  $("back").disabled = idx === 0;
-  $("fwd").disabled = idx === steps.length - 1;
-  $("play").textContent = playing && idx < steps.length - 1 ? "⏸ Pause" : (idx === steps.length - 1 ? "▶ Replay" : "▶ Play");
-}
-
-function schedule() {
-  clearTimeout(timer);
-  if (!playing || idx >= steps.length - 1) return;
-  timer = setTimeout(() => { idx++; render(); schedule(); }, +$("speed").value);
-}
-
-function start() {
-  const m = $("eq").value.match(/^\s*(\d{1,4})\s*[-−–]\s*(\d{1,4})\s*=?\s*$/);
-  if (!m) { showError("Type a subtraction like <b>4203 - 1768</b> (up to 4 digits)."); return; }
-  const a = +m[1], b = +m[2];
-  if (b > a) { showError("The first number needs to be bigger than the second, so the answer isn't negative."); return; }
-  build(a, b);
-  idx = 0; playing = true;
-  render(); schedule();
-}
-
-function showError(html) {
-  clearTimeout(timer);
-  $("msg").innerHTML = html;
-}
-
-$("form").onsubmit = e => { e.preventDefault(); start(); };
-$("back").onclick = () => { playing = false; idx = Math.max(0, idx-1); clearTimeout(timer); render(); };
-$("fwd").onclick  = () => { playing = false; idx = Math.min(steps.length-1, idx+1); clearTimeout(timer); render(); };
-$("restart").onclick = () => { idx = 0; playing = true; render(); schedule(); };
-$("play").onclick = () => {
-  if (idx >= steps.length - 1) { idx = 0; playing = true; }
-  else playing = !playing;
-  render(); schedule();
-};
-$("speed").onchange = schedule;
-
-start();
-</script>
 </body>
 </html>
